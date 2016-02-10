@@ -394,17 +394,17 @@ public class MainScript : MonoBehaviour
     
     private string[] difficultyInfo = new string[]
     {
-        "INFINITE LIVES, INFINITE CONTINUES, NO BONUSES FOR CPU",
+        "99 LIVES, INFINITE CONTINUES, NO BONUSES FOR CPU",
         "3 LIVES, NO CONTINUES, NO BONUSES FOR CPU",
         "3 LIVES, NO CONTINUES, CPU MAY COLLECT BONUSES"
     };
     private string[] difficultyInfo1 = new string[]
     {
-        "LIFES: INFINITY", "LIFES: 3", "LIFES: 3"
+        "LIFES: 99", "LIFES: 3", "LIFES: 3"
     };
     private string[] difficultyInfo2 = new string[]
     {
-        "INFINITE CONTINUES", "NO CONTINUES", "NO CONTINUES"
+        "CONTINUES: 99", "CONTINUES: 0", "CONTINUES: 0"
     };
     private string[] difficultyInfo3 = new string[]
     {
@@ -619,6 +619,12 @@ public class MainScript : MonoBehaviour
     // 44 - бетонный блок
 
     private string defaultLevel = "1100000000001100000000001111000000000011000000000011000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003333000000000002200000022038830220000002224000000210388302200000023";
+
+    private int[] scoresToLifes = { 0, 0, 0, 0 };
+
+    private int valueLife = 10000;
+
+    public AudioSource giveLifeSound;
 
     private void Awake()
     {
@@ -874,6 +880,7 @@ public class MainScript : MonoBehaviour
             }
             else if (newGameScreen == GameScreen.Scores)
             {
+                currentScore = 0;
                 ClearLabyrinth();
                 showLabelPressStartButton = true;
             }
@@ -1145,6 +1152,14 @@ public class MainScript : MonoBehaviour
                 nv.RPC("SpawnBonus", RPCMode.All, tanksScripts[0].transform.position, (int)Bonus.Bomb);
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Delete))
+        {
+            if (Network.isServer)
+            {
+                nv.RPC("SpawnBonus", RPCMode.All, tanksScripts[0].transform.position, (int)Bonus.Fort);
+            }
+        }
         if (Input.GetKeyDown(KeyCode.PageUp) && tanksScripts[0] != null)
         {
             //if (tanksScripts[0].invincible == 0)
@@ -1159,6 +1174,11 @@ public class MainScript : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.End))
         {
+            playersList[0].kills[0] = 20;
+            playersList[0].kills[1] = 20;
+            playersList[0].kills[2] = 20;
+            playersList[0].kills[3] = 20;
+            playersList[0].kills[4] = 20;
             nv.RPC("NextLevel", RPCMode.All);
         }
     }
@@ -1171,38 +1191,55 @@ public class MainScript : MonoBehaviour
 
     private void UpdateScoresScreen()
     {
-        if (Time.time > scoresTimer)
+        
+            
+                
+        if (currentScore < 5)
         {
-            scoresTimer = Time.time + scoresRate;
-            buttonMoveSound.Play();
-            if (currentScore < 5)
-            {
-                if (playersList[0].scores1[currentScore] != playersList[0].kills[currentScore] * (currentScore + 1) * 100)
+            //if (Time.time > scoresTimer)
+            //{
+                //scoresTimer = Time.time + scoresRate;
+                //buttonMoveSound.Play();
+
+                        
+                for (int i = 0; i < 4; i++)
                 {
-                    playersList[0].scores1[currentScore] += (currentScore + 1) * 100;
+                    Debug.Log(Time.time + " : currentScore = " + currentScore.ToString());
+                    while (playersList[i].scores1[currentScore] != playersList[i].kills[currentScore] * (currentScore + 1) * 100)
+                    {
+
+
+                        if (Time.time > scoresTimer)
+                        {
+                            scoresTimer = Time.time + scoresRate;
+                            buttonMoveSound.Play();
+
+                            playersList[i].scores1[currentScore] += (currentScore + 1) * 100;
+                            playersList[i].scores += playersList[i].scores1[currentScore];
+                            if (playersList[i].scores / (float)valueLife > scoresToLifes[i])
+                            {
+                                giveLifeSound.Play();
+                                playersList[i].lifes++;
+                                scoresToLifes[i]++;
+                            }
+                        }
+                    }
+                            
                 }
-                else if (playersList[1].scores1[currentScore] != playersList[1].kills[currentScore] * (currentScore + 1) * 100)
-                {
-                    playersList[1].scores1[currentScore] += (currentScore + 1) * 100;
-                }
-                else if (playersList[2].scores1[currentScore] != playersList[2].kills[currentScore] * (currentScore + 1) * 100)
-                {
-                    playersList[2].scores1[currentScore] += (currentScore + 1) * 100;
-                }
-                else if (playersList[3].scores1[currentScore] != playersList[3].kills[currentScore] * (currentScore + 1) * 100)
-                {
-                    playersList[3].scores1[currentScore] += (currentScore + 1) * 100;
-                }
-                else
-                {
-                    currentScore++;
-                }
-            }
-            if (currentScore == 5)
-            {
                 currentScore++;
-                showLabelPressStartButton = true;
-            }
+
+            //}
+                    
+        }
+                
+            
+            
+        
+        if (currentScore == 5)
+        {
+            scoresTimer = Mathf.Infinity;
+            currentScore++;
+            showLabelPressStartButton = true;
         }
         if (Input.GetButtonDown("P1Start") || Input.GetButtonDown("P2Start") || Input.GetButtonDown("P3Start") || Input.GetButtonDown("P4Start"))
         {
@@ -2794,11 +2831,24 @@ public class MainScript : MonoBehaviour
                     {
                         if (difficulty == 0)
                         {
-                            playersList[0].lifes = 2000000000;
-                            playersList[1].lifes = 2000000000;
-                            playersList[2].lifes = 2000000000;
-                            playersList[3].lifes = 2000000000;
+                            playersList[0].lifes = 99;
+                            playersList[1].lifes = 99;
+                            playersList[2].lifes = 99;
+                            playersList[3].lifes = 99;
                         }
+                        if (difficulty == 1 || difficulty == 2)
+                        {
+                            playersList[0].lifes = 3;
+                            playersList[1].lifes = 3;
+                            playersList[2].lifes = 3;
+                            playersList[3].lifes = 3;
+                        }
+                        
+                        scoresToLifes[0] = 1;
+                        scoresToLifes[1] = 1;
+                        scoresToLifes[2] = 1;
+                        scoresToLifes[3] = 1;
+
                         Network.InitializeServer(0, 25001, false);
                         SetScreen(GameScreen.NewLevel);
                         break;
@@ -3155,6 +3205,9 @@ public class MainScript : MonoBehaviour
         tanksScripts[numberTank].hitPoints = hitPoints;
     }
 
+    //Поскольку игрок появляется не сразу, а сначала появляется мерцание,
+    // пришлось создать специальный объект Spawn,
+    // который создаёт игрока по истечении времени.
     [RPC]
     public void SpawnSpawnPlayer(int number)
     {
@@ -3167,6 +3220,12 @@ public class MainScript : MonoBehaviour
     [RPC]
     public void SpawnSpawnEnemy(int r, int number, int type)
     {
+        //Это спрайт мерцания.
+        GameObject spawnSprite = spawnSprites.ShowAtPosition(enemyRespawns[r]);
+
+        //Это специальный объект для создания объекта по истечении времени.
+        // Потом лучше будет переписать под использование функции Invoke. Или нет.
+        //Spawn учитывает нажатие кнопки паузы, а Invoke не будет.
         GameObject spawnGO = spawns.ShowAtPosition(enemyRespawns[r]);
             
         Spawn spawnScript = spawnGO.GetComponent<Spawn>();
@@ -3312,9 +3371,9 @@ public class MainScript : MonoBehaviour
 
     private void StartGame()
     {
-        for (int index = 4; index < allTanks; ++index)
+        for (int i = 4; i < allTanks; i++)
         {
-            tanksScripts[index].waterWalking = false;
+            tanksScripts[i].waterWalking = false;
         }
         //if (currentLevel <= levels.Length)
         //{
@@ -3605,312 +3664,97 @@ public class MainScript : MonoBehaviour
     public void UpgradeFort()
     {
         SetConcreteFort();
-        Invoke("SetBricksFort", 16f);
-        Invoke("SetConcreteFort", 17f);
-        Invoke("SetBricksFort", 18f);
-        Invoke("SetConcreteFort", 19f);
-        Invoke("SetBricksFort", 20f);
+        Invoke("SetBricksFort", 16.0f);
+        Invoke("SetConcreteFort", 17.0f);
+        Invoke("SetBricksFort", 18.0f);
+        Invoke("SetConcreteFort", 19.0f);
+        Invoke("SetBricksFort", 20.0f);
     }
     private void SetConcreteFort()
     {
+        //Убираем блоки вокруг крепости.
         ClearUpgradeFort();
-        SetLabObject(11, 6, 8);
-        SetLabObject(12, 5, 10);
-        SetLabObject(12, 7, 9);
-        SetLabObject(11, 5, 20);
-        SetLabObject(11, 7, 21);
+
+        //Этот блок сверху крепости.
+        SetLabObject(11, 6, LabObject.Concrete, "0011001100110011");
+
+        //Этот блок сверху и слева от крепости.
+        SetLabObject(11, 5, LabObject.Concrete, "1111111100110011");
+
+        //Этот блок сверху и справа от крепости.
+        SetLabObject(11, 7, LabObject.Concrete, "0011001111111111");
+
+        //Этот блок внизу и слева от крепости.
+        SetLabObject(12, 5, LabObject.Concrete, "1111111100000000");
+        
+        //Этот блок внизу и справа от крепости.
+        SetLabObject(12, 7, LabObject.Concrete, "0000000011111111");
+        
     }
     private void SetBricksFort()
     {
+        //Убираем блоки вокруг крепости.
         ClearUpgradeFort();
-        SetLabObject(11, 6, 3);
-        SetLabObject(12, 5, 5);
-        SetLabObject(12, 7, 4);
-        SetLabObject(11, 5, 16);
-        SetLabObject(11, 7, 17);
+
+        //Этот блок сверху крепости.
+        SetLabObject(11, 6, LabObject.Concrete, "0011001100110011");
+
+        //Этот блок сверху и слева от крепости.
+        SetLabObject(11, 5, LabObject.Concrete, "1111111100110011");
+
+        //Этот блок сверху и справа от крепости.
+        SetLabObject(11, 7, LabObject.Concrete, "0011001111111111");
+
+        //Этот блок внизу и слева от крепости.
+        SetLabObject(12, 5, LabObject.Concrete, "1111111100000000");
+
+        //Этот блок внизу и справа от крепости.
+        SetLabObject(12, 7, LabObject.Concrete, "0000000011111111");
     }
     public void ClearUpgradeFort()
     {
+        //Этот блок сверху крепости.
         DeleteLabObject(11, 6);
-        DeleteLabObject(12, 5);
-        DeleteLabObject(12, 7);
+
+        //Этот блок сверху и слева от крепости.
         DeleteLabObject(11, 5);
+
+        //Этот блок сверху и справа от крепости.
         DeleteLabObject(11, 7);
+
+        //Этот блок внизу и слева от крепости.
+        DeleteLabObject(12, 5);
+
+        //Этот блок внизу и справа от крепости.
+        DeleteLabObject(12, 7);
     }
 
     public void DeleteLabObject(int x, int y)
     {
-        if ((UnityEngine.Object)labTransforms[x, y] != (UnityEngine.Object)null)
+        if (labTransforms[x, y] != null)
         {
-            UnityEngine.Object.Destroy((UnityEngine.Object)labTransforms[x, y].gameObject);
-            labTransforms[x, y] = (Transform)null;
+            Destroy(labTransforms[x, y].gameObject);
+            labTransforms[x, y] = null;
         }
         else
         {
-            string[] strArray = new string[5];
-            int index1 = 0;
-            string str1 = "Блок ";
-            strArray[index1] = str1;
-            int index2 = 1;
-            string str2 = x.ToString();
-            strArray[index2] = str2;
-            int index3 = 2;
-            string str3 = ", ";
-            strArray[index3] = str3;
-            int index4 = 3;
-            string str4 = y.ToString();
-            strArray[index4] = str4;
-            int index5 = 4;
-            string str5 = " не существует.";
-            strArray[index5] = str5;
-            Debug.Log((object)string.Concat(strArray));
+            Debug.Log(Time.time + " : блок " + x.ToString() + ", " + y.ToString() + " не существует.");
         }
     }
-    public void SetLabObject(int x, int y, int type)
+    public void SetLabObject(int x, int y, LabObject type, string blocks)
     {
-        GameObject gameObject1 = new GameObject();
-        gameObject1.transform.position = new Vector3((float)(y * 2.0 + 3.0), 0.0f, (float)(28.0 - x * 2.0));
-        gameObject1.AddComponent<MeshFilter>();
-        gameObject1.AddComponent<MeshRenderer>();
-        gameObject1.AddComponent<MeshCollider>();
-        gameObject1.AddComponent<Bricks>();
-        labTransforms[x, y] = gameObject1.transform;
-        Bricks component1 = labTransforms[x, y].GetComponent<Bricks>();
-        MeshRenderer component2 = labTransforms[x, y].GetComponent<MeshRenderer>();
-        labTransforms[x, y].parent = labParent;
-        switch (type)
+        if (blocks.Length != 16)
         {
-            case 3:
-                GameObject gameObject2 = gameObject1;
-                string[] strArray1 = new string[5];
-                int index1 = 0;
-                string str1 = "Bricks(";
-                strArray1[index1] = str1;
-                int index2 = 1;
-                string str2 = x.ToString();
-                strArray1[index2] = str2;
-                int index3 = 2;
-                string str3 = ",";
-                strArray1[index3] = str3;
-                int index4 = 3;
-                string str4 = y.ToString();
-                strArray1[index4] = str4;
-                int index5 = 4;
-                string str5 = ")";
-                strArray1[index5] = str5;
-                string str6 = string.Concat(strArray1);
-                gameObject2.name = str6;
-                gameObject1.tag = "Bricks";
-                component2.material = bricksMat;
-                break;
-            case 4:
-                GameObject gameObject3 = gameObject1;
-                string[] strArray2 = new string[5];
-                int index6 = 0;
-                string str7 = "Bricks(";
-                strArray2[index6] = str7;
-                int index7 = 1;
-                string str8 = x.ToString();
-                strArray2[index7] = str8;
-                int index8 = 2;
-                string str9 = ",";
-                strArray2[index8] = str9;
-                int index9 = 3;
-                string str10 = y.ToString();
-                strArray2[index9] = str10;
-                int index10 = 4;
-                string str11 = ")";
-                strArray2[index10] = str11;
-                string str12 = string.Concat(strArray2);
-                gameObject3.name = str12;
-                gameObject1.tag = "Bricks";
-                component2.material = bricksMat;
-                break;
-            case 5:
-                GameObject gameObject4 = gameObject1;
-                string[] strArray3 = new string[5];
-                int index11 = 0;
-                string str13 = "Bricks(";
-                strArray3[index11] = str13;
-                int index12 = 1;
-                string str14 = x.ToString();
-                strArray3[index12] = str14;
-                int index13 = 2;
-                string str15 = ",";
-                strArray3[index13] = str15;
-                int index14 = 3;
-                string str16 = y.ToString();
-                strArray3[index14] = str16;
-                int index15 = 4;
-                string str17 = ")";
-                strArray3[index15] = str17;
-                string str18 = string.Concat(strArray3);
-                gameObject4.name = str18;
-                gameObject1.tag = "Bricks";
-                component2.material = bricksMat;
-                break;
-            case 8:
-                GameObject gameObject5 = gameObject1;
-                string[] strArray4 = new string[5];
-                int index16 = 0;
-                string str19 = "Concrete(";
-                strArray4[index16] = str19;
-                int index17 = 1;
-                string str20 = x.ToString();
-                strArray4[index17] = str20;
-                int index18 = 2;
-                string str21 = ",";
-                strArray4[index18] = str21;
-                int index19 = 3;
-                string str22 = y.ToString();
-                strArray4[index19] = str22;
-                int index20 = 4;
-                string str23 = ")";
-                strArray4[index20] = str23;
-                string str24 = string.Concat(strArray4);
-                gameObject5.name = str24;
-                gameObject1.tag = "Concrete";
-                component2.material = concreteMat;
-                break;
-            case 9:
-                GameObject gameObject6 = gameObject1;
-                string[] strArray5 = new string[5];
-                int index21 = 0;
-                string str25 = "Concrete(";
-                strArray5[index21] = str25;
-                int index22 = 1;
-                string str26 = x.ToString();
-                strArray5[index22] = str26;
-                int index23 = 2;
-                string str27 = ",";
-                strArray5[index23] = str27;
-                int index24 = 3;
-                string str28 = y.ToString();
-                strArray5[index24] = str28;
-                int index25 = 4;
-                string str29 = ")";
-                strArray5[index25] = str29;
-                string str30 = string.Concat(strArray5);
-                gameObject6.name = str30;
-                gameObject1.tag = "Concrete";
-                component2.material = concreteMat;
-                break;
-            case 10:
-                GameObject gameObject7 = gameObject1;
-                string[] strArray6 = new string[5];
-                int index26 = 0;
-                string str31 = "Concrete(";
-                strArray6[index26] = str31;
-                int index27 = 1;
-                string str32 = x.ToString();
-                strArray6[index27] = str32;
-                int index28 = 2;
-                string str33 = ",";
-                strArray6[index28] = str33;
-                int index29 = 3;
-                string str34 = y.ToString();
-                strArray6[index29] = str34;
-                int index30 = 4;
-                string str35 = ")";
-                strArray6[index30] = str35;
-                string str36 = string.Concat(strArray6);
-                gameObject7.name = str36;
-                gameObject1.tag = "Concrete";
-                component2.material = concreteMat;
-                break;
-            case 16:
-                GameObject gameObject8 = gameObject1;
-                string[] strArray7 = new string[5];
-                int index31 = 0;
-                string str37 = "Bricks(";
-                strArray7[index31] = str37;
-                int index32 = 1;
-                string str38 = x.ToString();
-                strArray7[index32] = str38;
-                int index33 = 2;
-                string str39 = ",";
-                strArray7[index33] = str39;
-                int index34 = 3;
-                string str40 = y.ToString();
-                strArray7[index34] = str40;
-                int index35 = 4;
-                string str41 = ")";
-                strArray7[index35] = str41;
-                string str42 = string.Concat(strArray7);
-                gameObject8.name = str42;
-                gameObject1.tag = "Bricks";
-                component2.material = bricksMat;
-                break;
-            case 17:
-                GameObject gameObject9 = gameObject1;
-                string[] strArray8 = new string[5];
-                int index36 = 0;
-                string str43 = "Bricks(";
-                strArray8[index36] = str43;
-                int index37 = 1;
-                string str44 = x.ToString();
-                strArray8[index37] = str44;
-                int index38 = 2;
-                string str45 = ",";
-                strArray8[index38] = str45;
-                int index39 = 3;
-                string str46 = y.ToString();
-                strArray8[index39] = str46;
-                int index40 = 4;
-                string str47 = ")";
-                strArray8[index40] = str47;
-                string str48 = string.Concat(strArray8);
-                gameObject9.name = str48;
-                gameObject1.tag = "Bricks";
-                component2.material = bricksMat;
-                break;
-            case 20:
-                GameObject gameObject10 = gameObject1;
-                string[] strArray9 = new string[5];
-                int index41 = 0;
-                string str49 = "Concrete(";
-                strArray9[index41] = str49;
-                int index42 = 1;
-                string str50 = x.ToString();
-                strArray9[index42] = str50;
-                int index43 = 2;
-                string str51 = ",";
-                strArray9[index43] = str51;
-                int index44 = 3;
-                string str52 = y.ToString();
-                strArray9[index44] = str52;
-                int index45 = 4;
-                string str53 = ")";
-                strArray9[index45] = str53;
-                string str54 = string.Concat(strArray9);
-                gameObject10.name = str54;
-                gameObject1.tag = "Concrete";
-                component2.material = concreteMat;
-                break;
-            case 21:
-                GameObject gameObject11 = gameObject1;
-                string[] strArray10 = new string[5];
-                int index46 = 0;
-                string str55 = "Concrete(";
-                strArray10[index46] = str55;
-                int index47 = 1;
-                string str56 = x.ToString();
-                strArray10[index47] = str56;
-                int index48 = 2;
-                string str57 = ",";
-                strArray10[index48] = str57;
-                int index49 = 3;
-                string str58 = y.ToString();
-                strArray10[index49] = str58;
-                int index50 = 4;
-                string str59 = ")";
-                strArray10[index50] = str59;
-                string str60 = string.Concat(strArray10);
-                gameObject11.name = str60;
-                gameObject1.tag = "Concrete";
-                component2.material = concreteMat;
-                break;
+            Debug.Log(Time.time + " : wrong length of parametr, must be equal 16.");
         }
+
+        labTransforms[x, y] = (Transform)Instantiate(prefabs[(int)type], new Vector3(y * 2.0f + 3.0f, 0.0f, 28.0f - x * 2.0f), Quaternion.identity);
+        labTransforms[x, y].parent = labParent;
+
+        Bricks bricks = labTransforms[x, y].GetComponent<Bricks>();
+        bricks.x = x;
+        bricks.y = y;
+        SetBlockState(x, y, blocks);
     }
 
     [RPC]

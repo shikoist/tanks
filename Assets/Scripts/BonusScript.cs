@@ -23,14 +23,6 @@ public class BonusScript : MonoBehaviour
     {
         ms = GameObject.Find("MainScript").GetComponent<MainScript>();
         mr = transform.GetComponent<MeshRenderer>();
-        if (ms.debug)
-        {
-            destroyRate = 60.0f;
-        }
-        else
-        {
-            destroyRate = 10.0f;
-        }
     }
 
     private void Update()

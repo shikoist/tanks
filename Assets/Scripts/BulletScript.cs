@@ -17,7 +17,7 @@ public class BulletScript : MonoBehaviour
     public int direction = 0;
 
     float timer = 0.0f;
-    float timerRate = 0.1f;
+    float timerRate = 0.03333333f; //2/60
 
     private void Start()
     {
@@ -103,37 +103,40 @@ public class BulletScript : MonoBehaviour
         {
             if (collider.enabled)
             {
-                Transform tCollider = collision.contacts[i].otherCollider.transform;
-                string tag = tCollider.tag;
+                Transform transformOtherCollider = collision.contacts[i].otherCollider.transform;
+                string tag = transformOtherCollider.tag;
                 if (tag == "Tank")
                 {
-                    string str = tCollider.GetComponent<TankScript>().ally;
-                    if (str == "Player" && ally == "Enemy" || str == "Enemy" && ally == "Player")
+                    ms.audioBigExplosion.Play();
+
+                    string otherAlly = transformOtherCollider.GetComponent<TankScript>().ally;
+                    if (otherAlly == "Player" && ally == "Enemy" || otherAlly == "Enemy" && ally == "Player")
                     {
                         rigidbody.velocity = Vector3.zero;
                         renderer.enabled = false;
                         collider.enabled = false;
+                        break;
                         //transform.position = Vector3.zero;
                     }
                 }
                 else
                 {
-                    //ms.bulletsExplosionsTransforms[number].position = transform.position;
-                    //ms.bulletsDetonators[number].Explode();
-                    //if (number < 4 || number > 23 && number < 28)
-                    //{
-                    //    ms.bulletsExplosionsTransforms[number].audio.Play();
-                    //}
+                    
                     ms.smallExplosions.ShowAtPosition(transform.position);
 
-                    if (!ms.noSound && !ms.audioSmallExplosion.isPlaying)
+                    //Если это пули игроков...
+                    if (number < 4 || number > 23 && number < 28)
                     {
-                        ms.audioSmallExplosion.Play();
+                        if (!ms.noSound && !ms.audioSmallExplosion.isPlaying)
+                        {
+                            ms.audioSmallExplosion.Play();
+                        }
                     }
-
+                    
                     rigidbody.velocity = Vector3.zero;
                     renderer.enabled = false;
                     collider.enabled = false;
+                    break;
                 }
             }
         }
