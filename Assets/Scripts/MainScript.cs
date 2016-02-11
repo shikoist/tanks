@@ -881,6 +881,13 @@ public class MainScript : MonoBehaviour
             else if (newGameScreen == GameScreen.Scores)
             {
                 currentScore = 0;
+                for (int a = 0; a < 4; a++)
+                {
+                    for (int b = 0; b < 5; b++)
+                    {
+                        playersList[a].scores1[b] = 0;
+                    }
+                }
                 ClearLabyrinth();
                 showLabelPressStartButton = true;
             }
@@ -1174,11 +1181,13 @@ public class MainScript : MonoBehaviour
         }
         if (Input.GetKeyDown(KeyCode.End))
         {
-            playersList[0].kills[0] = 20;
-            playersList[0].kills[1] = 20;
-            playersList[0].kills[2] = 20;
-            playersList[0].kills[3] = 20;
-            playersList[0].kills[4] = 20;
+            for (int a = 0; a < 4; a++)
+            {
+                for (int b = 0; b < 5; b++)
+                {
+                    playersList[a].kills[b] = Random.Range(0, 21);
+                }
+            }
             nv.RPC("NextLevel", RPCMode.All);
         }
     }
@@ -1191,53 +1200,76 @@ public class MainScript : MonoBehaviour
 
     private void UpdateScoresScreen()
     {
-        
-            
-                
         if (currentScore < 5)
         {
-            //if (Time.time > scoresTimer)
-            //{
-                //scoresTimer = Time.time + scoresRate;
-                //buttonMoveSound.Play();
-
-                        
-                for (int i = 0; i < 4; i++)
+            if (Time.time > scoresTimer)
+            {
+                if (playersList[0].scores1[currentScore] != playersList[0].kills[currentScore] * (currentScore + 1) * 100)
                 {
-                    Debug.Log(Time.time + " : currentScore = " + currentScore.ToString());
-                    while (playersList[i].scores1[currentScore] != playersList[i].kills[currentScore] * (currentScore + 1) * 100)
+                    scoresTimer = Time.time + scoresRate;
+                    buttonMoveSound.Play();
+
+                    playersList[0].scores1[currentScore] += (currentScore + 1) * 100;
+                    playersList[0].scores += (currentScore + 1) * 100;
+                    if (playersList[0].scores / (float)valueLife > scoresToLifes[0])
                     {
-
-
-                        if (Time.time > scoresTimer)
-                        {
-                            scoresTimer = Time.time + scoresRate;
-                            buttonMoveSound.Play();
-
-                            playersList[i].scores1[currentScore] += (currentScore + 1) * 100;
-                            playersList[i].scores += playersList[i].scores1[currentScore];
-                            if (playersList[i].scores / (float)valueLife > scoresToLifes[i])
-                            {
-                                giveLifeSound.Play();
-                                playersList[i].lifes++;
-                                scoresToLifes[i]++;
-                            }
-                        }
+                        giveLifeSound.Play();
+                        playersList[0].lifes++;
+                        scoresToLifes[0]++;
                     }
-                            
                 }
-                currentScore++;
+                else if (playersList[1].scores1[currentScore] != playersList[1].kills[currentScore] * (currentScore + 1) * 100)
+                {
+                    scoresTimer = Time.time + scoresRate;
+                    buttonMoveSound.Play();
 
-            //}
-                    
+                    playersList[1].scores1[currentScore] += (currentScore + 1) * 100;
+                    playersList[1].scores += (currentScore + 1) * 100;
+                    if (playersList[1].scores / (float)valueLife > scoresToLifes[1])
+                    {
+                        giveLifeSound.Play();
+                        playersList[1].lifes++;
+                        scoresToLifes[1]++;
+                    }
+                }
+                else if (playersList[2].scores1[currentScore] != playersList[2].kills[currentScore] * (currentScore + 1) * 100)
+                {
+                    scoresTimer = Time.time + scoresRate;
+                    buttonMoveSound.Play();
+
+                    playersList[2].scores1[currentScore] += (currentScore + 1) * 100;
+                    playersList[2].scores += (currentScore + 1) * 100;
+                    if (playersList[2].scores / (float)valueLife > scoresToLifes[2])
+                    {
+                        giveLifeSound.Play();
+                        playersList[2].lifes++;
+                        scoresToLifes[2]++;
+                    }
+                }
+                else if (playersList[3].scores1[currentScore] != playersList[3].kills[currentScore] * (currentScore + 1) * 100)
+                {
+                    scoresTimer = Time.time + scoresRate;
+                    buttonMoveSound.Play();
+
+                    playersList[3].scores1[currentScore] += (currentScore + 1) * 100;
+                    playersList[3].scores += (currentScore + 1) * 100;
+                    if (playersList[3].scores / (float)valueLife > scoresToLifes[3])
+                    {
+                        giveLifeSound.Play();
+                        playersList[3].lifes++;
+                        scoresToLifes[3]++;
+                    }
+                }
+                else
+                {
+                    currentScore++;
+                }
+            }
         }
-                
-            
-            
         
         if (currentScore == 5)
         {
-            scoresTimer = Mathf.Infinity;
+            scoresTimer = Time.time - 1.0f;
             currentScore++;
             showLabelPressStartButton = true;
         }
