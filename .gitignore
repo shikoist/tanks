@@ -219,7 +219,11 @@ pip-log.txt
 #Unity Import
 .meta
 
-/[Ll]ibrary/
+#/[Ll]ibrary/
+/[Ll]ibrary/FailedAssetImports.txt
+/[Ll]ibrary/cache/
+/[Ll]ibrary/previews/
+/[Ll]ibrary/ScriptAssemblies
 /[Tt]emp/
 /[Oo]bj/
 /[Bb]uild/
