@@ -1,4 +1,10 @@
 #tanks
 This is small game project, just for fun. I`ll try to reconstruct gameplay of two classic game: "Battle City" and "Tank 1990".
+Compile requirements:
+1. Unity 4.7.0;
+2. MS Visual Studio 2013 Community Edition.
 
 Это маленький игровой проект, всего лишь для веселья. Я попытаюсь реконструировать игровой процесс двух классических игр, "Battle City" и "Tank 1990".
+Требования к компиляции:
+1. Unity 4.7.0;
+2. MS Visual Studio 2013 Community Edition.
