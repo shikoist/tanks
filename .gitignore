@@ -217,7 +217,7 @@ pip-log.txt
 
 
 #Unity Import
-.meta
+#.meta
 
 /[Ll]ibrary/
 /[Tt]emp/
@@ -241,7 +241,7 @@ ExportedObj/
 
 
 # Unity3D generated meta files
-*.pidb.meta
+#*.pidb.meta
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
