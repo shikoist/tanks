@@ -57,7 +57,7 @@ build/
 *_i.c
 *_p.c
 *.ilk
-*.meta
+#*.meta
 *.obj
 *.pch
 *.pdb
@@ -241,7 +241,7 @@ ExportedObj/
 
 
 # Unity3D generated meta files
-#*.pidb.meta
+*.pidb.meta
 
 # Unity3D Generated File On Crash Reports
 sysinfo.txt
