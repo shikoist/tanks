@@ -3,6 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
+public enum CameraType
+{
+    Classic,
+    Isometric,
+    FPS
+}
+
 public enum GameScreen
 {
     Menu,
@@ -107,6 +114,8 @@ public class TankInfo
     public int armour;
     public int ammo;
 
+    
+
     public TankInfo(string n, float w, float l, float h, float s, float bs, int ar, int am)
     {
         name = n;
@@ -125,9 +134,7 @@ public class MainScript : MonoBehaviour
     public string version;
     public string about1;
     public string about2;
-
-
-
+   
     public bool debug;
 
     public bool noSound = false;
@@ -201,7 +208,7 @@ public class MainScript : MonoBehaviour
     public Texture playerTank;
     public Texture enemyTank;
     public Texture[] paints;
-    public int cameraMode;
+    public CameraType cameraType;
     private int sizeLabX;
     private int sizeLabY;
     private float respawnTimer;
@@ -381,9 +388,16 @@ public class MainScript : MonoBehaviour
     
     private string[] difficultyMenuStrings = new string[] 
     {
-        "EASY",
-        "NORMAL",
-        "HARD"
+        "DEBUG",
+        "BATTLE CITY",
+        "TANK 1990 N"
+    };
+
+    private string[] cameraTypeStrings = new string[] 
+    {
+        "CLASSIC",
+        "ISOMETRIC",
+        "FPS"
     };
     
     private string[] continueMenuStrings = new string[]
@@ -417,6 +431,7 @@ public class MainScript : MonoBehaviour
         "NUMBER OF PLAYERS: ",
         "MAP PACK: ",
         "DIFFICULTY: ",
+        "CAMERA: ",
         "START",
         "BACK"
     };
@@ -703,7 +718,7 @@ public class MainScript : MonoBehaviour
         fade.fadeState = FadeState.FromFade;
         currentSelectV = 0;
         gameScreen = GameScreen.Menu;
-        cameraMode = 0;
+        //cameraMode = 0;
         //labyrinth = new int[sizeLabX, sizeLabY];
         labTransforms = new Transform[sizeLabX, sizeLabY];
     }
@@ -838,7 +853,7 @@ public class MainScript : MonoBehaviour
             {
                 fileInfoMapPacksArray = new DirectoryInfo("./MapPacks/").GetFiles();
                 currentMapPackStr = fileInfoMapPacksArray[currentMapPack].Name;
-                currentSelectV = 3;
+                currentSelectV = 4;
                 currentSelectH = 1;
             }
             else if (newGameScreen == GameScreen.Network)
@@ -1108,7 +1123,7 @@ public class MainScript : MonoBehaviour
         if (freezeEnemies > 0 && otherTime > freezeEnemiesTimer)
         {
             freezeEnemiesTimer = otherTime + freezeRate;
-            --freezeEnemies;
+            freezeEnemies--;
         }
         
         if (freezePlayers > 0.0f && otherTime > freezePlayersTimer)
@@ -1501,6 +1516,7 @@ public class MainScript : MonoBehaviour
                     "NUMBER OF PLAYERS: " + playersCount,
                     "MAP PACK: " + currentMapPackStr,
                     "DIFFICULTY: " + difficultyMenuStrings[difficulty],
+                    "TYPE OF VIEW: " + cameraTypeStrings[(int)cameraType],
                     "START",
                     "BACK"
                 };
@@ -2858,8 +2874,14 @@ public class MainScript : MonoBehaviour
                         }
                         break;
                     }
-                    //START
+                    //CAMERA
                     case 3:
+                    {
+                        ChangeCameraMode();
+                        break;
+                    }
+                    //START
+                    case 4:
                     {
                         if (difficulty == 0)
                         {
@@ -2886,7 +2908,7 @@ public class MainScript : MonoBehaviour
                         break;
                     }
                     //BACK
-                    case 4:
+                    case 5:
                     {
                         SetScreen(GameScreen.Menu);
                         break;
@@ -3570,13 +3592,13 @@ public class MainScript : MonoBehaviour
 
     private void ChangeCameraMode()
     {
-        cameraMode++;
-        if (cameraMode > 2)
+        cameraType++;
+        if (cameraType > CameraType.FPS)
         {
-            cameraMode = 0;
+            cameraType = CameraType.Classic;
         }
-        ShowFlower(new Vector3(15.0f, 0.0f, 16.0f), "Camera " + cameraMode.ToString());
-        if (cameraMode == 0)
+        ShowFlower(new Vector3(15.0f, 0.0f, 16.0f), "Camera " + cameraType.ToString());
+        if (cameraType == CameraType.Classic)
         {
             mainCamera.transform.SetParent(null);
             mainCamera.isOrthoGraphic = true;
@@ -3585,7 +3607,7 @@ public class MainScript : MonoBehaviour
             mainCamera.transform.position = new Vector3(15f, 20f, 17f);
             mainCamera.transform.rotation = Quaternion.Euler(90f, 0.0f, 0.0f);
         }
-        else if (cameraMode == 1)
+        else if (cameraType == CameraType.Isometric)
         {
             mainCamera.transform.SetParent(null);
             mainCamera.isOrthoGraphic = true;
@@ -3594,7 +3616,7 @@ public class MainScript : MonoBehaviour
             mainCamera.transform.position = new Vector3(15f, 0.0f, 16f);
             mainCamera.transform.rotation = Quaternion.Euler(45.0f, 45.0f, 0.0f);
         }
-        else if (cameraMode == 2)
+        else if (cameraType == CameraType.FPS)
         {
             mainCamera.transform.SetParent(tanksTransforms[0]);
             mainCamera.isOrthoGraphic = false;
@@ -4229,7 +4251,7 @@ public class MainScript : MonoBehaviour
     private void SaveOptions()
     {
         PlayerPrefs.SetInt("hiScore", hiScore);
-        PlayerPrefs.SetInt("cameraMode", cameraMode);
+        PlayerPrefs.SetInt("cameraMode", (int)cameraType);
         PlayerPrefs.SetInt("ipNumber1", ipNumbers[0]);
         PlayerPrefs.SetInt("ipNumber2", ipNumbers[1]);
         PlayerPrefs.SetInt("ipNumber3", ipNumbers[2]);

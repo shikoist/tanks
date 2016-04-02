@@ -23,7 +23,6 @@ public class TankScript : MonoBehaviour
     public float bulletSpeed = 15f;
     [HideInInspector]
     public Transform bullet;
-    [HideInInspector]
     public int number;
     [HideInInspector]
     public int type;
@@ -83,6 +82,8 @@ public class TankScript : MonoBehaviour
     Vector3 minBounds = new Vector3(2, 0, 3);
     Vector3 maxBounds = new Vector3(28, 0, 29);
 
+
+    bool pressedInputX = false;
     //-----------------------------------------------------------------------------------------------------------------
 
     private void Start()
@@ -101,7 +102,7 @@ public class TankScript : MonoBehaviour
     private void Update()
     {
         //RefreshHits();
-
+        if (inputX == 0.0f && ms.cameraType == CameraType.FPS) pressedInputX = false;
 
         t.rotation = Quaternion.Euler(0.0f, direction * 90.0f, 0.0f);
         //rigidbody.MoveRotation(Quaternion.Euler(0.0f, direction * 90.0f, 0.0f));
@@ -216,7 +217,26 @@ public class TankScript : MonoBehaviour
                 }
 
                 //Вариант с плавным перемещением
-                transform.Translate(Vector3.forward * speedTank * 2.0f * Time.deltaTime);
+                //number > 3 это враги.
+                if (ms.cameraType == CameraType.Classic || number > 3)
+                {
+                    transform.Translate(Vector3.forward * speedTank * 2.0f * Time.deltaTime);
+                }
+                else if (ms.cameraType == CameraType.Isometric)
+                {
+                    transform.Translate(Vector3.forward * speedTank * 2.0f * Time.deltaTime);
+                }
+                else if (ms.cameraType == CameraType.FPS)
+                {
+                    if (inputY > 0.0f)
+                    {
+                        transform.Translate(Vector3.forward * speedTank * 2.0f * Time.deltaTime);
+                    }
+                    else if (inputY < 0.0f)
+                    {
+                        transform.Translate(-Vector3.forward * speedTank * 2.0f * Time.deltaTime);
+                    }
+                }
                 //rigidbody.velocity = t.forward * speedTank * 2.0f;
                 //if (rigidbody.GetRelativePointVelocity(t.forward).magnitude < 10.0f)
                 //if (rigidbody.velocity.magnitude < 10.0f)
@@ -269,25 +289,74 @@ public class TankScript : MonoBehaviour
                     onIce = true;
                     Invoke("StopOnIce", 1f);
                 }
-                if (inputX > 0)
+
+                //number > 3 this is enemies.
+                if (ms.cameraType == CameraType.Classic || number > 3)
                 {
-                    //transform.rotation = Quaternion.Euler(0.0f, 90f, 0.0f);
-                    direction = 1;
+                    if (inputX > 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 90f, 0.0f);
+                        direction = 1;
+                    }
+                    if (inputX < 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 270f, 0.0f);
+                        direction = 3;
+                    }
+                    if (inputY > 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+                        direction = 0;
+                    }
+                    if (inputY < 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 180f, 0.0f);
+                        direction = 2;
+                    }
                 }
-                if (inputX < 0)
+                else if (ms.cameraType == CameraType.Isometric)
                 {
-                    //transform.rotation = Quaternion.Euler(0.0f, 270f, 0.0f);
-                    direction = 3;
+                    if (inputX > 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 90f, 0.0f);
+                        direction = 1;
+                    }
+                    if (inputX < 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 270f, 0.0f);
+                        direction = 3;
+                    }
+                    if (inputY > 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
+                        direction = 0;
+                    }
+                    if (inputY < 0)
+                    {
+                        //transform.rotation = Quaternion.Euler(0.0f, 180f, 0.0f);
+                        direction = 2;
+                    }
                 }
-                if (inputY > 0)
+                else if (ms.cameraType == CameraType.FPS)
                 {
-                    //transform.rotation = Quaternion.Euler(0.0f, 0.0f, 0.0f);
-                    direction = 0;
-                }
-                if (inputY < 0)
-                {
-                    //transform.rotation = Quaternion.Euler(0.0f, 180f, 0.0f);
-                    direction = 2;
+                    if (inputX > 0 && pressedInputX == false)
+                    {
+                        pressedInputX = true;
+                        direction++;
+                        if (direction > 3)
+                        {
+                            direction = 0;
+                        }
+                    }
+                    if (inputX < 0 && pressedInputX == false)
+                    {
+                        pressedInputX = true;
+                        direction--;
+                        if (direction < 0)
+                        {
+                            direction = 3;
+                        }
+                    }
                 }
             }
             if (fire2Input != oldFire2Input)

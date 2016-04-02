@@ -3,7 +3,7 @@
 // - no lightmap support
 // - no per-material color
 
-Shader "Overlay/Unlit/Transparent" {
+Shader "Custom/Unlit-Transparent" {
 Properties {
 	_MainTex ("Base (RGB) Trans (A)", 2D) = "white" {}
 }

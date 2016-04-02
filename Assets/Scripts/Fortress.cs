@@ -24,7 +24,10 @@ public class Fortress : MonoBehaviour
             string tag = otherCollider.transform.tag;
             if (tag == "Bullet" || tag == "SpecialBullet")
             {
-                ms.StartBackToMenu();
+                if (ms.cameraType != CameraType.FPS)
+                {
+                    ms.StartBackToMenu();
+                }
                 //Instantiate(bigExplosion, transform.position, Quaternion.Euler(270.0f, 90.0f, 0.0f));
                 ms.bigExplosions.ShowAtPosition(transform.position);
                 renderer.enabled = false;

@@ -893,7 +893,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 165d756cfc88f8a4cb30f890c140e500, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  version: 0.921a
+  version: 0.921b
   about1: IN DEVELOPMENT 2013-2016
   about2: SHIKOIST
   debug: 0
@@ -936,7 +936,7 @@ MonoBehaviour:
   playerTank: {fileID: 2800000, guid: db6d8f09a104bbf49a0b13e2c9a64ef0, type: 3}
   enemyTank: {fileID: 2800000, guid: ec229c15882391b49bb34b4b56dfaa95, type: 3}
   paints: []
-  cameraMode: 0
+  cameraType: 0
   respawnRate: 3
   enemysScreen: 4
   numberSpawnedEnemy: 0
@@ -1704,7 +1704,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: cde0788921aac6446a1147b5ea292092, type: 2}
       propertyPath: version
-      value: 0.921a
+      value: 0.921b
       objectReference: {fileID: 0}
     - target: {fileID: 11400000, guid: cde0788921aac6446a1147b5ea292092, type: 2}
       propertyPath: debug

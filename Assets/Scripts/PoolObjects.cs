@@ -36,15 +36,15 @@ public class PoolObjects : MonoBehaviour {
             if (poolObjects[i].gameObject.activeSelf == false)
             {
                 poolObjects[i].gameObject.SetActive(true);
-                if (ms.cameraMode == 0)
+                if (ms.cameraType == CameraType.Classic)
                 {
                     poolObjects[i].rotation = Quaternion.Euler(-90.0f, 0.0f, 0.0f);
                 }
-                else if (ms.cameraMode == 1)
+                else if (ms.cameraType == CameraType.Isometric)
                 {
                     poolObjects[i].rotation = Quaternion.Euler(-35.0f, 180.0f, 0.0f);
                 }
-                else if (ms.cameraMode == 2)
+                else if (ms.cameraType == CameraType.FPS)
                 {
                     poolObjects[i].rotation = Quaternion.Euler(-45.0f, 180.0f + 27.5f, 0.0f);
                 }
